@@ -1,0 +1,361 @@
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{paper}
+\usepackage{float}
+\usepackage{cite}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={KEMTS vs. Post-Quantum TLS: um pequeno resumo}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+
+\begin{document}
+
+% Title:
+\title{Resumo: KEMTLS vs. Post-Quantum TLS: Performance On Embedded Systems}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz
+	%
+	% Affiliations and acknowledgements:
+	% \thanks{First Author: First University. Second Author: Second University. We
+	% thank colleagues for helpful comments and discussions. This work was supported
+	% by a grant [grant number]; another grant [grant number]; and a foundation.}}
+	\thanks{Gabriel dos Santos Schmitz: UTFPR. Eu agradeço colegas e orientador
+		por comentários e discussões úteis. Este trabalho foi apoiado por Grupo PQC
+		UTFPR}}
+
+% Date:
+\date{Agosto 2024}
+
+% Permanent URL (can be commented out):
+\available{https://github.com/gabrielzschmitz/research/summaries/}
+
+\begin{titlepage}
+
+	\maketitle
+
+	% Abstract:
+	TLS is widely used to secure communications across various devices, but
+	current public key cryptosystems could become vulnerable to quantum computers.
+	To address this, post-quantum cryptography (PQC) is being developed, with
+	standards from NIST expected soon. However, some NIST PQC finalists pose
+	challenges for small microcontrollers due to their large key sizes or hardware
+	requirements.
+
+	KEMTLS is an alternative TLS handshake protocol that uses key encapsulation
+	mechanisms (KEMs) for authentication instead of signatures, potentially
+	offering better efficiency. This study compares KEMTLS with TLS 1.3 in an
+	embedded environment using a Cortex-M4-based platform and the WolfSSL library.
+	The comparison includes performance metrics such as runtime, memory usage,
+	traffic volume, and code size across different network settings like
+	broadband, LTE-M, and Narrowband IoT. Results indicate that KEMTLS can reduce
+	handshake times by up to 38%, lower peak memory consumption, and decrease
+	traffic volume compared to TLS 1.3.
+
+\end{titlepage}
+
+% Introduction 1
+\section{Introdução}
+
+\paragraph{}
+Segurança de Camada de Transporte (TLS) utiliza um handshake entre servidores
+e clientes para troca e verificação de chaves de criptografia, empregando o
+algoritmo Diffie-Hellman com curvas elípticas efêmeras. As chaves públicas são
+trocadas e verificadas por certificados assinados por autoridades e instalados
+previamente nos dispositivos. Com o avanço da computação quântica, o NIST está
+desenvolvendo novos padrões de criptografia pós-quântica (PQ), incluindo
+Mecanismos de Encapsulamento de Chaves (KEMs). Os algoritmos híbridos combinam a
+troca clássica de chaves elípticas e PQ para maior segurança. Dilithium, um dos
+esquemas de assinatura, é lento e aumenta o handshake em 17 kb, enquanto Falcon,
+que exige operações de ponto flutuante duplo, é menor mas menos viável em
+hardware limitado. O KEMTLS propõe uma alternativa ao usar KEMs para
+autenticação, sendo mais eficiente em termos de recursos e reduzindo a base de
+código. Com a crescente conexão de dispositivos via IPv6, como visto no
+protocolo Matter, a criptografia para dispositivos embarcados enfrentará novos
+desafios.
+
+% Introduction 1.1
+\subsection{Contribuição}
+
+\paragraph{}
+Este trabalho investiga se as vantagens do KEMTLS se aplicam a sistemas
+embarcados, comparando-o com o PQTLS em um ambiente embutido. Implementaram-se
+KEMTLS e PQTLS com todos os esquemas de assinatura e KEMs finalistas do NIST,
+exceto o Classic McEliece devido ao tamanho excessivo das chaves públicas,
+ultrapassando a ROM desponível na plataforma. A comparação direta de desempenho
+é possível devido à sobreposição significativa de código entre as
+implementações. O estudo avalia tempo de execução, uso de memória, tamanho do
+código e consumo de largura de banda das implementações em uma plataforma
+baseada em Cortex-M4. Os experimentos simulam uma conexão TLS entre um
+dispositivo embarcado e um servidor de alto desempenho, utilizando tecnologias
+de rede típicas. O trabalho apresenta a criptografia pós-quântica, o processo de
+padronização, os protocolos PQTLS e KEMTLS, suas diferenças e os detalhes da
+implementação e configuração experimental, culminando nos resultados e
+conclusões.
+
+% Background 2
+\section{Plano de Fundo}
+
+\paragraph{}
+Nesta seção, abordaremos o desenvolvimento da criptografia pós-quântica,
+incluindo uma visão geral histórica e o processo de padronização do NIST. Também
+detalharemos o impacto da criptografia pós-quântica no TLS 1.3 e o
+desenvolvimento do KEMTLS.
+
+% Background 2.1
+\subsection{Criptografia Pós Quântica}
+
+\paragraph{}
+Em 1994, Peter Shor criou algoritmos quânticos que ameaçam a criptografia
+pública atual, incluindo o TLS, que seria comprometido por computadores
+quânticos grandes. O projeto de padronização de criptografia pós-quântica (PQC)
+do NIST começou em 2017, com mais de 60 propostas, das quais apenas 4 KEMs e 3
+algoritmos de assinatura foram finalistas. Entre os KEMs baseados em redes estão
+Kyber, Saber e NTRU, enquanto Falcon e Dilithium são baseados em assinaturas de
+rede. O Classic McEliece, baseado em códigos, foi descartado do artigo por seu
+tamanho de chave grande. Os algoritmos são avaliados em três níveis de
+segurança: I, III e V, e o estudo foca apenas no nível I. Falcon é baseado em
+NTRU, Dilithium em Module-LWE e Short Integer Solution, e Rainbow é uma
+assinatura multivariada variante do UOV, recentemente quebrada por Beullens. A
+criptografia pós-quântica é desafiadora para dispositivos embarcados devido às
+limitações de hardware, e os testes foram realizados sem reduzir a frequência do
+Cortex-M4.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=2]{\pdf}}
+	\caption{Comparação dos finalistas da Rodada 3}
+	\note{Comparação dos finalistas da Rodada 3 do NIST PQC no nível de segurança I. Mostramos o tamanho (em bytes) dos dados transmitidos durante um handshake (chave pública, assinatura e ciphertext), dados offline (chaves secretas) e tempos de operação (de [9, 17]) no M4.}
+	\label{f:table1}\end{figure}
+
+% Background 2.2
+\subsection{TLS Pós Quântico}
+
+\paragraph{}
+O TLS 1.3, amplamente utilizado no HTTPS, autentica o servidor para o cliente e
+oferece suporte opcional para autenticação mútua. O handshake unilateral
+autenticado por certificado utiliza uma troca de chaves Diffie-Hellman (DH)
+efêmera, seguida de uma assinatura sobre o handshake para autenticar,
+finalizando com autenticação adicional via MAC. Para adaptar o TLS 1.3 ao
+cenário pós-quântico, é possível substituir a geração de chaves DH do servidor
+pelo encapsulamento de uma chave usando KEMs (Key Encapsulation Mechanisms) e
+adotar algoritmos de assinatura pós-quânticos em vez de RSA ou assinaturas
+baseadas em curvas elípticas. Mesmo com essas mudanças, o TLS 1.3 mantém sua
+eficiência, necessitando apenas de 1.5-RTT (round-trip time).
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=3]{\pdf}}
+	\caption{Fluxos de protocolo}
+	\note{Diagramas simplificados do fluxo do protocolo: (à esquerda) o
+		handshake do TLS 1.3, usando assinaturas para autenticação do servidor; e (à
+		direita) o handshake do KEMTLS, usando KEMs para autenticação do servidor.}
+	\label{f:figure1}\end{figure}
+
+\paragraph{}
+O KEMTLS é uma proposta de handshake TLS pós-quântico que substitui assinaturas
+tradicionais por mecanismos de encapsulamento de chave (KEMs), que são menores e
+mais eficientes em termos computacionais. No KEMTLS, os certificados contêm
+chaves públicas para KEMs, enquanto as assinaturas ainda são usadas para
+verificar a cadeia de certificados de forma offline. Isso otimiza o tamanho das
+chaves públicas e assinaturas, melhorando a eficiência computacional. Inspirado
+pelo OPTLS de Krawczyk e Wee, o KEMTLS evita penalizações de desempenho ao
+permitir que o cliente envie sua solicitação na mesma etapa do TLS 1.3, mantendo
+o protocolo eficiente com apenas 1,5 RTT.
+
+% Experimental Setup 3
+\section{Configuração Experimental}
+
+\paragraph{}
+A seção a seguir descreve o ambiente experimental utilizado para obter nossos
+resultados. Ambos os protocolos foram avaliados em termos de tempo de handshake,
+tempo de execução dos algoritmos, uso máximo de memória, tamanho do código e
+tráfego de rede. Os tempos de handshake foram medidos em três ambientes de rede
+relevantes para o IoT: internet "broadband", LTE-M e Narrowband-IoT (NB-IoT). As
+características desses ambientes são detalhadas na Tabela 2. O ambiente
+"broadband" é baseado em tempos realistas de comunicação cliente-nuvem na Europa
+Ocidental, enquanto LTE-M e NB-IoT têm suas características baseadas em números
+do 3GPP.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=4]{\pdf}}
+	\caption{Características de conexão de acordo com 3GPP [1]}
+	\label{f:table2}\end{figure}
+
+\paragraph{}
+Como o KEMTLS é um protocolo pós-quântico, os experimentos não consideraram
+certificados mistos ou métodos híbridos (pós-quântico e curva elíptica). Tanto
+KEMTLS quanto PQTLS utilizam uma autoridade certificadora (CA) para assinar
+certificados, mas diferem no tipo de chave pública incluída nos certificados
+folha: KEMs em KEMTLS e chaves de assinatura em PQTLS. Foram avaliadas
+combinações dos finalistas do NIST, exceto Classic McEliece devido ao tamanho
+excessivo de suas chaves públicas. Apenas os parâmetros do nível de segurança
+mais baixo, o nível I do NIST, foram utilizados por serem mais compactos e
+eficientes.
+
+% Experimental Setup 3.1
+\subsection{Implementação}
+
+\paragraph{}
+Todos os benchmarks foram realizados em uma placa Silicon Labs STK3701A,
+conhecida como "Giant Gecko", equipada com um processador ARM Cortex-M4F de 72
+MHz e memória suficiente para suportar as chaves públicas do Rainbow. O
+Cortex-M4 é a plataforma de referência do NIST para dispositivos embarcados, com
+implementações otimizadas para a maioria dos algoritmos finalistas fornecidas
+pelo projeto PQM4. As implementações de criptografia pós-quântica (PQC)
+utilizadas foram retiradas do projeto PQM4, com pequenas modificações, e
+compiladas usando GCC 11.1 com otimização de velocidade.
+
+\paragraph{}
+O Giant Gecko atuou como cliente (KEM)TLS, conectado a um servidor backend, com
+a comunicação feita via Ethernet. O servidor simulava diferentes ambientes de
+rede usando o framework netem do Linux. O sistema usou o Zephyr RTOS, um sistema
+operacional em tempo real de código aberto com suporte para TCP/IP e TLS. A
+implementação do servidor KEMTLS foi baseada no código de Wiggers, e o WolfSSL
+foi escolhido pela sua eficiência de memória e suporte para TLS 1.3. A
+integração de algoritmos pós-quânticos no WolfSSL foi simplificada pela API
+clara do WolfCrypt, com modificações para suportar chaves KEM.
+
+\paragraph{}
+Em ambos os experimentos, PQTLS e KEMTLS, o cliente realizou apenas a
+verificação de assinaturas, sem necessidade de código de assinatura. Os
+resultados dos benchmarks foram recebidos via comunicação serial, e todos os
+experimentos utilizaram a cifra TLS 1.3 TLS\_CHACHA20\_POLY1305\_SHA256.
+
+% Results 4
+\section{Resultados}
+
+\paragraph{}
+O texto discute os trade-offs importantes para desenvolvedores de sistemas
+embarcados entre tamanho de código, uso de memória, tráfego de rede e tempo de
+CPU ao utilizar KEMTLS e TLS 1.3 com finalistas do NIST PQC. O tempo de execução
+dos algoritmos afeta o consumo de energia, especialmente em dispositivos
+alimentados por bateria. O tráfego de rede também impacta o consumo de energia e
+pode ser caro dependendo da tecnologia sem fio. Os benchmarks apresentados focam
+em plataformas Cortex-M4 e incluem resultados de tamanho de código, uso de
+memória, tráfego e duração do handshake, e tempo de execução das primitivas PQC.
+Rainbow, um dos finalistas do NIST, está incluído apenas nos resultados do
+KEMTLS devido ao grande tamanho de suas chaves públicas. Todos os algoritmos PQC
+utilizados foram otimizados para velocidade.
+
+% Results 4.1
+\subsection{Armazenamento e Consumo de Memória}
+
+\paragraph{}
+As implementações dos protocolos KEMTLS e TLS 1.3 têm tamanhos de código
+similares, ambos com aproximadamente 111 kB sem as primitivas pós-quânticas. A
+Tabela 3 apresenta as combinações de algoritmos PQC e seus respectivos tamanhos
+de código. KEMTLS é mostrado com uma única instância de KEM para troca de chaves
+efêmeras e autenticação, enquanto TLS 1.3 utiliza dois algoritmos de verificação
+de assinatura distintos, se usados algoritmos diferentes para certificados CA e
+de folha. NTRU se destaca com um tamanho de código superior a 200 kB quando
+usado para troca de chaves efêmeras, mas não quando utilizado apenas para
+autenticação. O certificado CA com chave pública Rainbow ocupa entre 33% e 53%
+do espaço de armazenamento devido ao seu grande tamanho, mas Rainbow ainda é
+viável em sistemas embarcados devido ao tamanho pequeno das assinaturas e tempos
+rápidos de verificação.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=5]{\pdf}}
+	\caption{Comparação KEMTLS e PQTLS nível I NIST}
+	\note{Tamanhos de código e certificado CA (e como porcentagem do tamanho total
+		da ROM), e uso máximo de memória nos experimentos. Os conjuntos de parâmetros
+		usados são do nível I do NIST.}
+	\label{f:table3}\end{figure}
+
+\paragraph{}
+Além disso, os esquemas baseados em redes (lattice-based) têm bom desempenho em
+termos de consumo de memória, que é principalmente impulsionado pelo uso da
+pilha dos algoritmos de assinatura PQC. A exceção é Rainbow, cuja chave pública
+grande precisa ser mantida na memória durante a verificação de assinatura,
+exigindo grande alocação de heap. Seria possível otimizar isso armazenando a
+chave pública já em um formato utilizável na flash, mas essa otimização não foi
+incluída para permitir resultados comparáveis de código reutilizável.
+
+% Results 4.2
+\subsection{Termos de Handshake}
+
+\paragraph{}
+Os tempos de handshake são fundamentais em ambientes embarcados, assim como o
+consumo de armazenamento e memória. A Tabela 4 apresenta os tempos de handshake
+medidos em milhões de ciclos para diferentes tecnologias de transmissão, e a
+Figura 2 ilustra esses tempos e o tráfego para cenários de banda larga e NB-IoT.
+Em uma implantação real, o dispositivo poderia entrar em modo de baixo consumo
+durante transmissões lentas, dependendo das especificações do sistema.
+
+\paragraph{}
+Nos experimentos, o CPU operou a 72 MHz para garantir resultados consistentes. A
+Tabela 4 também destaca a porcentagem de ciclos dedicados às primitivas de
+criptografia pós-quântica (PQC), enquanto os ciclos restantes foram utilizados
+pela máquina de estado TLS, operações de memória ou espera por I/O.
+
+\paragraph{}
+Em configurações de banda larga e LTE-M, as operações criptográficas têm um
+impacto significativo. No entanto, na NB-IoT, essas operações representam uma
+pequena porcentagem do tempo total (0,8% - 1,7%). Nessas configurações de baixa
+largura de banda e alta latência, o tamanho das transmissões de certificados e
+chaves públicas é o principal fator que determina o tempo de execução. Além
+disso, o carregamento de grandes chaves públicas da memória afeta a eficiência
+do algoritmo Rainbow, que, de outra forma, seria rápido.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=6]{\pdf}}
+	\caption{Tempo de handshake e execução}
+	\note{Tráfego de handshake e tempo de execução para vários cenários. Os
+		conjuntos de parâmetros usados são do nível I do NIST.}
+	\label{f:table4}\end{figure}
+
+\paragraph{}
+Os KEMs superam o Dilithium na autenticação devido ao tempo de verificação mais
+rápido e ao menor tamanho de chave e assinatura, o que reduz o tempo de
+transmissão. O Rainbow, quando usado como certificado de autoridade
+certificadora (CA), oferece os tempos de handshake mais rápidos, especialmente
+em KEMTLS. O Falcon se destaca no servidor, mas tem operações de assinatura mais
+lentas que os KEMs. Em cenários de banda larga e LTE-M, o desempenho do PQTLS
+com Falcon e SABER é comparável ao do KEMTLS com Rainbow e SABER.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=7]{\pdf}}
+	\caption{Tempo de handshake e tráfego para instâncias}
+	\note{Tempos de handshake e tráfego para instâncias de KEMTLS e PQTLS. As
+		letras representam os algoritmos (D)ilithium, (F)alcon, (K)yber, (N)TRU,
+		(R)ainbow e (S)ABER nos papéis de troca de chaves efêmeras, autenticação de
+		handshake e CA, nessa ordem.}
+	\label{f:figure2}\end{figure}
+
+% Discussion 5
+\section{Discussão}
+
+\paragraph{}
+Os resultados mostram que o KEMTLS com autenticação apenas do servidor consome
+menos memória que o PQTLS e possui tamanhos de código semelhantes. O PQTLS com
+Falcon se destaca em termos de eficiência de verificação, superando outras
+instâncias, exceto em cenários com SABER ou NTRU combinados com Rainbow, onde o
+KEMTLS é mais eficiente devido ao menor uso de memória. Falcon também se sai
+melhor que Dilithium no lado do cliente em qualquer cenário, especialmente em
+ambientes de largura de banda muito baixa, como NB-IoT. No entanto, a assinatura
+do Falcon pode não ser adequada para autenticação pós-quântica sem suporte de
+hardware, onde uma combinação de Dilithium e Falcon pode ser mais eficaz
+
+% Conclusion and Future Work 6
+\section{Conclusão e Trabalho Futuro}
+
+\paragraph{}
+Neste artigo, comparou-se o desempenho de KEMTLS e TLS 1.3 usando finalistas de
+criptografia pós-quântica (PQC) do NIST em um ambiente embarcado com um cliente
+Cortex-M4 e um servidor de classe desktop. O KEMTLS consome menos memória que o
+TLS 1.3 devido ao menor uso de memória dos KEMs, embora o tamanho do código seja
+similar. As primitivas PQC exigem mais de 50% do tempo de handshake em ambos os
+protocolos. No ambiente NB-IoT, as assinaturas pequenas do Rainbow são
+vantajosas, enquanto o Falcon oferece bom desempenho devido à sua verificação
+eficiente, apesar de ser caro para assinaturas. Futuras pesquisas devem explorar
+a autenticação do cliente e servidores embarcados, e a redução de largura de
+banda com chaves pré-distribuídas.
+
+% \bibliography{bibliography}
+
+\end{document}

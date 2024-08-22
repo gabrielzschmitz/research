@@ -1,0 +1,24 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{pdfpages}
+
+% Just convert any image to PDF using ImageMagick:
+% $ convert figure.png figure.pdf
+% And add to the figures PDF!
+
+\begin{document}
+
+\includepdf[pages=-,fitpaper=true]{logo-grupo-pqc-utfpr.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig1.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig2.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig3.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig4.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig5.pdf}
+\newpage
+\includepdf[pages=-,fitpaper=true]{fig6.pdf}
+
+\end{document}
