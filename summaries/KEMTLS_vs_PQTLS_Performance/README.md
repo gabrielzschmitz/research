@@ -6,9 +6,9 @@ This directory contains a summary of the paper **"KEMTLS vs. Post-Quantum TLS: P
 
 ## Directory Structure
 
-- **`paper.pdf`**: The full PDF version of the summary.
-- **`paper.tex`**: The LaTeX source file for the summary.
-- **`paper.sty`**: The LaTeX style file used in the summary.
+- **`summary.pdf`**: The full PDF version of the summary.
+- **`summary.tex`**: The LaTeX source file for the summary.
+- **`summary.sty`**: The LaTeX style file used in the summary.
 - **`figures/`**: Directory containing figures related to the summary.
   - **`fig1.png`** to **`fig6.png`**: Individual figures in PNG format.
   - **`figures.pdf`**: PDF compilation of all figures.
