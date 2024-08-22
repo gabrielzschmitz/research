@@ -35,4 +35,4 @@ doi = {10.1007/978-3-031-22829-2_6}
 
 ## License
 
-See the [LICENSE](../LICENSE) file for more details.
+See the [LICENSE](../../LICENSE) file for more details.
