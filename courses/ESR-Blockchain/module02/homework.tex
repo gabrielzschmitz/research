@@ -1,0 +1,128 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{homework}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{booktabs}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 1}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Defining problem, subproblem and solution:
+\newtheorem{problem}{\refstepcounter{problemcount}{Problema}}
+\newtheorem{subproblem}{\refstepcounter{subproblemcount}}[problem]
+\makeatletter
+\renewcommand{\thesubproblem}{%
+  \theproblem-\ifnum\value{subproblem}<27%
+    \alph{subproblem}%
+  \else%
+    \number\numexpr\value{subproblem}-26\relax%
+  \fi%
+}
+\makeatother
+\newenvironment{solution}[1][\it{Solução}]{
+  \refstepcounter{solutioncount}{\textbf{#1:}\\}}
+{}
+
+\begin{document}
+
+% Title:
+\title{Tarefa: Blockchains Corporativos\\ Hyperledger Fabric\\ Módulo 1}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz}
+
+% Date:
+\date{Outubro 2024}
+
+\begin{titlepage}
+
+	\maketitle
+
+\end{titlepage}
+
+% Tarefa 1
+\section{Chaves Públicas e Privadas}
+
+% 1
+\begin{problem}
+O site https://andersbrownworth.com/blockchain/public-private-keys/transaction
+contém ferramentas interativas para demonstrar o funcionamento de chaves
+públicas e privadas, e também a utilização delas para assinar transações.
+Explore o site e o utilize para responder às questões abaixo.
+\end{problem}
+
+% 1-a
+\begin{subproblem}
+	Qual o valor da assinatura de uma transação com os dados da tabela abaixo?
+	\begin{table}[ht]
+		\centering
+		\resizebox{\textwidth}{!}{ % Resize the table to fit the text width
+			\begin{tabular}{@{}lp{11cm}@{}} % Set a width for the second column
+				\toprule
+				\textbf{Valor}                                            & \textbf{De}                                                 \\ \midrule
+				$35.00                                                    & 041e728b6c57cf4c6be2f2d593cfddad442523f7f316e483d0b2216b38f \\
+				                                                          & dfd55652fb13d2b61983e696abf8e9badb1002e08e9bad1a882dd787fd  \\
+				                                                          & c2598969c67bd                                               \\\bottomrule
+				\textbf{Para}                                             & \textbf{Chave Privada}                                      \\ \midrule
+				04cc955bf8e359cc7ebbb66f4c2dc616a93e8ba08e93d27996e20299b & 447045612320949259997020406888024561147803363458274417137   \\
+				a92cba9cbd73c2ff46ed27a3727ba09486ba32b5ac35dd20c0adec020 & 05004851108031018522                                        \\
+				536996ca4d9f3d74                                          &                                                             \\ \bottomrule
+			\end{tabular}}
+	\end{table}
+\end{subproblem}
+\begin{solution}
+	O valor da assinatura baseado na transação é de: \\
+	3045022100960016f1a50a1d36934f233a24b571ecadc7c045fd830c93b510b3f0f73f36 \\
+	7a02205b56171bc8a545ec30d64b60f139fba98093f13deef7b9205e976d615fad8405
+\end{solution}
+
+% 1-b
+\begin{subproblem}
+	Usando os mesmos dados de De, Para e Chave Privada da tabela na questão 1,
+	identifique quais das transações na tabela abaixo são válidas:
+	\begin{table}[ht]
+		\centering
+		\resizebox{\textwidth}{!}{ % Resize the table to fit the text width
+			\begin{tabular}{@{}lp{1cm}@{}} % Set a width for the second column
+				\toprule
+				\textbf{Tx} & \textbf{Valor} & \textbf{Assinatura}                                                                                                                              \\ \midrule
+				1           & $5.00          & 304502210092d7a8c41c090fb9d26f495dc381297e17a3961cf2c60e7826179023bbaf6ef602201658154e537e55de6064f3a781902cef1541b7b75a29bbf3616d8d3aaba7eca8   \\
+					\midrule
+				2           & $3.00          & 3046022100befb38ad806de564f12f50db48027fe7ccdf5fcfabbb9f228055cd2bf8a80c2f022100b7f4e0283b1ba099a206e1328bb23ff7d2b413a9cbe8070ccb0dd83334bce53e \\
+				\midrule
+				3           & $9.00          & 304402200ff25c5e99b891f7f4ddf8c5acc18c1b0db52bccc9664bcee5b80452fb6ee99602203e499de01b0be560dc6d8efb9e0d03df6f011eb75d16359abf5bcc90bdfd09ff     \\
+					\midrule
+				4           & $1.00          & 3045022100d799c67ccb033646b284b3cdbbf133b437757c03564279bc6c7200b877910620022005a12c62b203da939b4201368b49fcdfaae95bc0bbac14f4b14eb77c30b84eb0   \\
+				\midrule
+				5           & $2.00          & 304502206fd040f1a2377bbb4e95a46ff60e9ea9a1de162739b527d287e551ad826cc89a022100ea7fc1ff3e4e05eb6211d9d07e94cd3c1d015bb8a9f48b1e40bd80d19518a0e2   \\
+				\bottomrule
+			\end{tabular}
+		}
+		\caption{Tabela de Transações}
+		\label{tab:transacoes}
+	\end{table}
+\end{subproblem}
+\begin{solution}
+	Verificando as tranções com as assinaturas providas as transções validas são
+	as de\\
+	\text{Tx} = [1, 4, 5].
+\end{solution}
+
+
+% \bibliography{bibliography}
+
+\end{document}

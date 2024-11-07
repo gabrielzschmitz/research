@@ -1,0 +1,123 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{homework}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 1}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Defining problem, subproblem and solution:
+\newtheorem{problem}{\refstepcounter{problemcount}{Problema}}
+\newtheorem{subproblem}{\refstepcounter{subproblemcount}}[problem]
+\makeatletter
+\renewcommand{\thesubproblem}{%
+  \theproblem-\ifnum\value{subproblem}<27%
+    \alph{subproblem}%
+  \else%
+    \number\numexpr\value{subproblem}-26\relax%
+  \fi%
+}
+\makeatother
+\newenvironment{solution}[1][\it{Solução}]{
+  \refstepcounter{solutioncount}{\textbf{#1:}\\}}
+{}
+
+\begin{document}
+
+% Title:
+\title{Tarefa: Blockchains Corporativos\\ Hyperledger Fabric\\ Módulo 1}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz}
+
+% Date:
+\date{Outubro 2024}
+
+\begin{titlepage}
+
+	\maketitle
+
+\end{titlepage}
+
+% Tarefa 1
+\section{Tokens UTXO}
+
+% 1
+\begin{problem}
+Considere que o usuário \textit{A} tenha três tokens no formato UTXO com
+valores de 127 GLD, 5 GLD e 62 GLD.\@ Esse usuário então deseja fazer uma
+transferência de 140 GLD para o usuário \textit{B}.
+\end{problem}
+
+% 1-a
+\begin{subproblem}
+	Quais tokens do usuário \textit{A} deverão ser utilizados como input na
+	transação, utilizando o menor número de tokens possíveis para isso? O que
+	ocorrerá com esses tokens utilizados como input no final da transação?
+\end{subproblem}
+\begin{solution}
+	Para realizar a transação com o menor número de tokens possível, o usuário
+	\textit{A} deverá utilizar o token de 127 GLD inteiro e 13 GLD do token de 62
+	GLD, restando 49 GLD nesse último token.\@ Ao final da transação, o primeiro
+	token será transferido de \textit{A} para \textit{B} junto com os 13 GLD do
+	segundo token.
+\end{solution}
+
+% 1-b
+\begin{subproblem}
+	Considerando sua resposta da questão 1, qual será o output desta transação?
+\end{subproblem}
+\begin{solution}
+	O output da transação será um token de 127 GLD e um token de 13 GLD
+	transferidos de \textit{A} para \textit{B}. Além disso, \textit{A} manterá o
+	saldo remanescente de 49 GLD no segundo token e os 5 GLD do terceiro token.
+\end{solution}
+
+% Tarefa 2
+\section{Blockchain Demo}
+
+% 2
+\begin{problem}
+Utilize o site https://andersbrownworth.com/blockchain/blockchain para responder
+as questões a seguir. Se familiarize com o site antes de respondê-las.
+\end{problem}
+
+% 2-a
+\begin{subproblem}
+	O valor de nonce, gerado após utilizar do botão de minerar, garante que o
+	valor de hash do bloco seja válido. No exemplo do site, qual característica é
+	esperada para o valor da hash para que a rede de blocos seja válida?
+\end{subproblem}
+\begin{solution}
+	O hash deve começar com quatro dígitos zero para que o bloco seja considerado
+	válido.
+\end{solution}
+
+% 2-b
+\begin{subproblem}
+	Para o bloco com o valor Prévio igual a 0, considere o número do bloco como
+	2461 e seus dados como \underline{5 BTC -> Maria}. Qual o valor da hash desse
+	bloco, minerado com o menor valor inteiro positivo possível para o nonce.
+\end{subproblem}
+\begin{solution}
+	O hash resultante é: \\
+	0000417825649abc576be53eef5b026c80643738d500ef025aef48612be8c09d, obtido com o
+	menor valor de nonce igual a 146285.
+\end{solution}
+
+% \bibliography{bibliography}
+
+\end{document}
