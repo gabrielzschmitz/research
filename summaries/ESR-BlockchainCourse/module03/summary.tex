@@ -1,0 +1,315 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{summary}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 1}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Adding code support
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{darkBackground}{RGB}{40, 44, 52} % Background color
+\definecolor{lightGray}{RGB}{55, 61, 69}      % Light gray for the frame
+\definecolor{blue}{RGB}{66, 134, 244}         % Blue for keywords
+\definecolor{green}{RGB}{80, 250, 123}        % Green for comments
+\definecolor{red}{RGB}{255, 85, 85}           % Red for strings
+\definecolor{purple}{RGB}{189, 147, 249}      % Purple for other keywords
+\definecolor{orange}{RGB}{255, 184, 108}      % Orange for constants
+\lstdefinestyle{oneDarkStyle}{
+    backgroundcolor=\color{darkBackground}, % Solid background
+    basicstyle=\ttfamily\footnotesize\color{white}, % Font style
+    breaklines=false,
+    frame=single,
+    captionpos=b,
+    rulecolor=\color{darkBackground}, % Change frame color to match background
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green},
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{black},
+    showtabs=false,                  
+    numbers=left,
+    morekeywords={int, float, return, void}, % Extra keywords
+}
+\lstset{style=oneDarkStyle}
+
+\begin{document}
+
+\begin{figure}[t]
+	{\includegraphics[scale=0.25,page=1]{\pdf}}
+	\vspace{-50pt}
+	\label{f:logo}\end{figure}
+
+% Title:
+\title{Resumo: Blockchain GoLedger Módulo 3}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz
+	%
+	% Affiliations and acknowledgements:
+	\thanks{Gabriel dos Santos Schmitz: UTFPR. Eu agradeço colegas e orientador
+		por comentários e discussões úteis. Este trabalho foi apoiado por Grupo PQC
+		UTFPR}}
+
+% Date:
+\date{Novembro 2024}
+
+% Permanent URL:
+\available{https://github.com/gabrielzschmitz/research/tree/main/summaries/ESR-BlockchainCourse}
+
+\begin{titlepage}
+
+	\maketitle
+
+	% Abstract:
+	This document provides an in-depth overview of Hyperledger Fabric, a
+	permissioned blockchain framework tailored for enterprise applications. It
+	explores key components such as the Orderer, responsible for transaction
+	ordering and network consensus; the Certification Authority (CA), which
+	manages permissions through digital certificates; and the Membership Service
+	Provider (MSP), ensuring secure authentication. The analysis covers the
+	functionality of Chaincodes as smart contracts for asset management and the
+	role of Clients in facilitating external interactions with the blockchain.
+	Emphasis is placed on privacy features like Private Data Collections, enabling
+	selective data sharing among organizations while maintaining transparency
+	through cryptographic validation. The document concludes by highlighting the
+	framework’s flexibility in governance and detailed permission control, making
+	it a robust solution for complex business networks.
+
+\end{titlepage}
+
+% Topic 1
+\section{Conceitos de Hyperledger Fabric}
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.4,page=2]{\pdf}}
+	\caption{Tecnologia integrada}
+	%\note{}
+	\label{f:figure1}\end{figure}
+
+\paragraph{}
+Em um blockchain não permissionado, qualquer pessoa pode criar nós na rede,
+identificando-se por meio de pares de chaves criptográficas geradas
+aleatoriamente. A rede utiliza ativos escassos, como criptomoedas, para realizar
+transações, possibilitando o registro de eventos entre partes desconhecidas. O
+uso da rede envolve custos pagos em criptomoedas, e o acesso ao ledger é feito
+por meio de wallets.
+
+\paragraph{}
+Redes de blockchain permissionado são compostas por consórcios ou reguladores,
+com as organizações participantes sendo identificadas criptograficamente. A
+entrada na rede exige autorização, exceto para os fundadores. Essas redes
+permitem que processos compartilhados sejam codificados em contratos
+inteligentes e seguidos por regras de consenso, baseadas em leis e normas.
+Existem diversos frameworks disponíveis para o desenvolvimento dessas redes.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=3]{\pdf}}
+	\caption{Hyperledger Foundation}
+	%\note{}
+	\label{f:figure2}\end{figure}
+
+\paragraph{}
+A Hyperledger Foundation é um projeto de código aberto administrado pela Linux
+Foundation, focado em aprimorar tecnologias blockchain para diferentes setores
+empresariais. É o projeto de crescimento mais rápido na história da fundação,
+contando com a colaboração de empresas financeiras, bancos, IoT, logística, e
+indústrias tecnológicas.
+
+\paragraph{}
+O Hyperledger Project foi criado em 2015 com o objetivo de fomentar o uso de
+blockchain em ambientes empresariais e industriais. O primeiro projeto foi o
+Hyperledger Fabric, originalmente conhecido como OpenLedger e doado pela IBM. Os
+projetos da Hyperledger são categorizados em Graduados, Incubados, e
+Laboratório, podendo incluir frameworks, bibliotecas, ferramentas, ou clientes
+de acesso.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=4]{\pdf}}
+	\caption{Exemplo de Rede Hyperledger Fabric}
+	%\note{}
+	\label{f:figure3}\end{figure}
+
+\paragraph{}
+A rede Fabric é ideal para situações que envolvem processos com múltiplas
+entidades ou organizações conhecidas e confiáveis, onde o registro de
+informações segue um sistema de credenciais hierárquicas. A governança da rede
+pode ser flexível, variando entre modelos democráticos e regulados, conforme a
+necessidade das instituições envolvidas.
+
+\section{Confiabilidade Hyperledger Fabric}
+
+\paragraph{}
+O Hyperledger Fabric utiliza o algoritmo Raft para alcançar consenso, que
+envolve o compartilhamento de estado entre nós com tolerância a falhas. Este
+modelo é semelhante ao consenso Proof of Authority, mas não é Bizantino (BFT).
+Os nós de ordenação são responsáveis por manter o consenso, que pode ser
+definido através de um chaincode ou canal. A infraestrutura também utiliza o
+etcd, um armazenamento chave-valor distribuído.
+
+\paragraph{}
+No Hyperledger Fabric, a rede é permissionada, composta por consórcios ou redes
+de negócios, onde cada organização é representada por uma Autoridade
+Certificadora (CA). A confiabilidade é garantida pela comparação de informações
+assinadas por diferentes organizações, utilizando contratos inteligentes
+(chaincodes), que não são armazenados no ledger. Esse modelo se assemelha a
+sistemas contratuais do mundo físico, como cartórios.
+
+\newpage{}
+
+\paragraph{}
+O Ethereum pode ser utilizado tanto em redes permissionadas quanto não
+permissionadas. Smart contracts são armazenados no ledger como bytecode, e o
+consenso é alcançado via PoW, PoS ou PoA, com a EVM validando o hash do bytecode
+antes da execução. Transações envolvem uma contagem de gas, e a reputação dos
+nós é utilizada nos modelos PoS e PoA, garantindo confiabilidade. Apenas o
+modelo PoA Clique não é BFT.
+
+\section{Componentes Hyperledger Fabric}
+
+\paragraph{}
+No Hyperledger Fabric, um Asset é um elemento compartilhado na rede, podendo ser
+tangível ou intangível. A rede é composta por Nodes, que são os dispositivos
+participantes, e utiliza um Ledger, o livro-razão das transações. A
+identificação dos membros é gerida pelo Membership Service Provider (MSP),
+enquanto a CA (Autoridade Certificadora) garante a autenticidade das
+identidades. A comunicação entre partes da rede ocorre através de Channels, que
+possuem um ledger dedicado, e os Chaincodes atuam como contratos inteligentes. A
+rede pode ser acessada por clientes externos, conhecidos como Clients, formando
+uma Business Network.
+
+\paragraph{}
+O ledger no Hyperledger Fabric é imutável e privado, armazenando transações de
+configuração e de aplicação de forma cronológica. As transações podem criar,
+atualizar ou deletar assets, e são mantidas nos nós (peers e orderers). Um
+Channel é um meio de comunicação entre membros específicos da rede, definido por
+um conjunto de organizações, peers, um ledger, chaincodes, e nós de ordenação
+que asseguram as regras do canal.
+
+\paragraph{}
+O controle de acesso é gerido através de uma Access Control List (ACL), permitindo o gerenciamento detalhado de leitura, escrita, e administração dos recursos da rede. As permissões são atribuídas por meio de Policies, como "MyPolicy", que pode permitir acesso com base nas assinaturas das organizações. As políticas podem ser aplicadas a channels, organizações, e aplicações, utilizando ferramentas como configtxgen e arquivos de configuração configtx.yaml.
+
+\paragraph{}
+Os assets na rede podem representar elementos tangíveis ou intangíveis,
+armazenados em formatos binários ou JSON. Eles funcionam como entradas em uma
+tabela de banco de dados, com estados mantidos na rede e modificados dentro de
+channels. Cada asset é indexado por uma chave primária ou composta, facilitando
+operações de criação, modificação, e consulta no ledger.
+
+\newpage{}
+
+\begin{lstlisting}[language=Go, caption=Asset Example]
+// Description of a book
+var Book = assets.AssetType{
+  Tag: "book",
+  Label: "Book",
+  Description: "Book",
+  Props: []assets.AssetProp{
+    {
+      IsKey: true, // Primary Key
+      Tag: "title",
+      Label: "Book Title",
+      DataType: "string",
+      Writers: []string{`org2MSP`}, // This means only org2 can
+                                    // create the asset (others can edit)
+    },
+    {
+      Tag: "currentTenant",
+      Label: "Current Tenant",
+      DataType: "->person", /// Reference to another asset
+    },
+    {
+      Tag: "genres",
+      Label: "Genres",
+      DataType: "[]string", // String list
+    },
+    {
+      Tag: "published",
+      Label: "Publishment Date",
+      DataType: "datetime", // Date property
+    },
+  },
+}
+\end{lstlisting}
+
+\paragraph{}
+Nodes são dispositivos que armazenam ledgers e contratos inteligentes na rede
+Hyperledger Fabric. Existem dois tipos principais de nodes: Peers, que pertencem
+a uma organização e mantêm cópias do ledger, e Ordering Nodes, que recebem
+transações, realizam o consenso, e ordenam a gravação de novos blocos. A
+comunicação entre nodes é realizada via protocolo GRPC com segurança TLS, e o
+protocolo de gossip permite comunicação Peer-to-Peer.
+
+\newpage{}
+
+\paragraph{}
+Os Peers têm várias funções, como armazenar cópias do channel (ledger) e
+executar contratos inteligentes (chaincodes). Cada peer é identificado por um
+certificado digital e representa uma organização específica. Existem tipos
+especiais de peers, como o Anchor Peer, que comunica com outras organizações e
+nodes de ordenação para manter o channel sincronizado, e o Endorsement Peer, que
+armazena o chaincode e processa propostas de transação enviadas pelos clientes
+da rede. Para otimizar espaço, os peers podem utilizar snapshots do ledger.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.75,page=5]{\pdf}}
+	\caption{Anatomia do Peer}
+	%\note{}
+	\label{f:figure4}\end{figure}
+
+\paragraph{}
+O Orderer é um componente crítico no Hyperledger Fabric, responsável por
+garantir o consenso e o permissionamento da Business Network. Ele armazena
+channels, identifica permissões e valida características dos chaincodes,
+incluindo políticas de endosso. O Orderer recebe pacotes de transações
+assinadas, valida-os, organiza as transações, gera novos blocos, e os envia para
+os Anchor Peers, mantendo a ordem e consistência da rede.
+
+\paragraph{}
+A Certification Authority (CA) gerencia o permissionamento da rede,
+representando organizações específicas por meio de uma infraestrutura PKI que
+utiliza certificados digitais x.509. Estes certificados são usados pelo
+Membership Service Provider (MSP), que abstrai o permissionamento e organiza os
+elementos da rede como peers, orderers, e usuários, assegurando a integridade da
+rede.
+
+\newpage{}
+
+\paragraph{}
+Os Chaincodes são programas que realizam propostas de alterações nos assets, mas
+não atualizam diretamente o ledger. Cada chaincode possui uma política de
+endosso que define quais assinaturas são necessárias para validar uma transação.
+A Endorsing Policy é uma regra lógica que pode exigir assinaturas de múltiplas
+organizações e é aplicada para garantir a conformidade das transações.
+
+\paragraph{}
+O Client é a interface que conecta o ambiente digital externo ao blockchain,
+comunicando-se com peers e orderers. Ele cria propostas de transação, recebe
+respostas de execução dos chaincodes e utiliza certificados digitais para
+autenticação. Para facilitar a comunicação, os clients utilizam um Connection
+Profile, um documento que descreve a configuração da rede.
+
+\paragraph{}
+O conceito de Private Data Collection permite que certas informações dentro de
+um channel sejam acessíveis apenas a organizações específicas, mantendo dados
+sensíveis fora do ledger principal em um banco de dados transiente, como
+CouchDB. Os participantes de uma Business Network podem interagir utilizando os
+diversos componentes do Hyperledger Fabric, como channels, CAs, orderers, e
+clients, garantindo segurança e flexibilidade nas transações empresariais.
+
+% \bibliography{bibliography}
+
+\end{document}
