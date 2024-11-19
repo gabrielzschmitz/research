@@ -1,0 +1,103 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{homework}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{booktabs}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 1}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Defining problem, subproblem and solution:
+\newtheorem{problem}{\refstepcounter{problemcount}{Problema}}
+\newtheorem{subproblem}{\refstepcounter{subproblemcount}}[problem]
+\makeatletter
+\renewcommand{\thesubproblem}{%
+  \theproblem-\ifnum\value{subproblem}<27%
+    \alph{subproblem}%
+  \else%
+    \number\numexpr\value{subproblem}-26\relax%
+  \fi%
+}
+\makeatother
+\newenvironment{solution}[1][\it{Solução}]{
+  \refstepcounter{solutioncount}{\textbf{#1:}\\}}
+{}
+
+\begin{document}
+
+% Title:
+\title{Tarefa: Blockchains Corporativos\\ Hyperledger Fabric\\ Módulo 1}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz}
+
+% Date:
+\date{Outubro 2024}
+
+\begin{titlepage}
+
+	\maketitle
+
+\end{titlepage}
+
+% Tarefa 1
+\section{Analisando Rede Fabric}
+
+% 1
+\begin{problem}
+Para essa tarefa, considera a representação gráfica simplificada de uma rede
+Fabric mostrada na imagem abaixo.
+\end{problem}
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=2]{\pdf}}
+	%\caption{}
+	%\note{}
+	\label{f:figure1}\end{figure}
+
+% 1-a
+\begin{subproblem}
+	Qual dos canais criados permite uma comunicação entre todas as organizações do
+	sistema?
+\end{subproblem}
+\begin{solution}
+	O canal que permite comunicação entre todas as organições é o canal
+	\textbf{C1}.
+\end{solution}
+
+% 1-b
+\begin{subproblem}
+	Quais canais a organização 4 têm acesso?
+\end{subproblem}
+\begin{solution}
+	A organização 4 tem acesso aos canais \textbf{C1} e \textbf{C2}.
+\end{solution}
+
+% 1-c
+\begin{subproblem}
+	Há um interesse dos administradores desta rede de trocar informações restritas
+	entre as organizações 1 e 3? O que pode ser feito para atingir esse objetivo?
+\end{subproblem}
+\begin{solution}
+	Não há interesse em trocar informações restritivas entre orgs 1 e 3 nesta
+	configuração de rede. Para isso, seria necessário criar outro canal
+	(\textbf{C4}) onde apenas os peers 1 e 3 tenham acesso.
+\end{solution}
+
+% \bibliography{bibliography}
+
+\end{document}
