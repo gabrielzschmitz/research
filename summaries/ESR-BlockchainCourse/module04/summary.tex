@@ -1,0 +1,247 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{summary}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 4}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Adding code support
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{darkBackground}{RGB}{40, 44, 52} % Background color
+\definecolor{lightGray}{RGB}{55, 61, 69}      % Light gray for the frame
+\definecolor{blue}{RGB}{66, 134, 244}         % Blue for keywords
+\definecolor{green}{RGB}{80, 250, 123}        % Green for comments
+\definecolor{red}{RGB}{255, 85, 85}           % Red for strings
+\definecolor{purple}{RGB}{189, 147, 249}      % Purple for other keywords
+\definecolor{orange}{RGB}{255, 184, 108}      % Orange for constants
+\lstdefinestyle{oneDarkStyle}{
+    backgroundcolor=\color{darkBackground}, % Solid background
+    basicstyle=\ttfamily\footnotesize\color{white}, % Font style
+    breaklines=false,
+    frame=single,
+    captionpos=b,
+    rulecolor=\color{darkBackground}, % Change frame color to match background
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green},
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{black},
+    showtabs=false,                  
+    numbers=left,
+    morekeywords={int, float, return, void}, % Extra keywords
+}
+\lstset{style=oneDarkStyle}
+
+\begin{document}
+
+\begin{figure}[t]
+	{\includegraphics[scale=0.25,page=1]{\pdf}}
+	\vspace{-50pt}
+	\label{f:logo}\end{figure}
+
+% Title:
+\title{Resumo: Blockchain GoLedger Módulo 4}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz
+	%
+	% Affiliations and acknowledgements:
+	\thanks{Gabriel dos Santos Schmitz: UTFPR. Eu agradeço colegas e orientador
+		por comentários e discussões úteis. Este trabalho foi apoiado por Grupo PQC
+		UTFPR}}
+
+% Date:
+\date{Novembro 2024}
+
+% Permanent URL:
+\available{https://github.com/gabrielzschmitz/research/tree/main/summaries/ESR-BlockchainCourse}
+
+\begin{titlepage}
+
+	\maketitle
+
+	% Abstract:
+	This article explores key concepts of Hyperledger Fabric, focusing on
+	transaction flow, private data handling, and network characteristics. It
+	begins with the transaction process, where a client initiates a proposal,
+	which is validated by endorsing peers before being organized and added to the
+	ledger by the Ordering Service. This flow is divided into three stages:
+	proposal and execution, submission and ordering, and validation and
+	commitment. The article also covers specific scenarios like managing Private
+	Data Collections (PDC) for sensitive data, highlighting how PDC adds
+	complexity to transaction flow while maintaining confidentiality.
+	Additionally, network scalability is discussed, addressing the adaptation to
+	organizational changes and the role of Peer Snapshots in data efficiency.
+	Techniques for chaincode interoperability, transaction tuning, and monitoring
+	for malicious activities underscore the flexibility and robustness of
+	Hyperledger Fabric. The piece concludes with a mention of future improvements,
+	particularly the planned Byzantine Fault Tolerant (BFT) consensus in Fabric
+	3.0, enhancing reliability and security in decentralized environments.
+
+\end{titlepage}
+
+% Topic 1
+\section{Conceitos de Hyperledger Fabric II}
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=2]{\pdf}}
+	\caption{Transaction flow}
+	%\note{}
+	\label{f:figure1}\end{figure}
+
+\textbf{1. Client Creates and Sends a Transaction:} The client creates a
+\textbf{PROPOSE MESSAGE} and sends it to a peer with the Gateway Service, which
+forwards it to the necessary endorsing peers according to the chaincode's
+endorsing policy. The \textbf{PROPOSE MESSAGE} includes:
+\begin{itemize}
+	\item clientID
+	\item chaincodeID
+	\item txPayload
+	\item Timestamp
+	\item clientSig
+\end{itemize}
+
+\textbf{2. Endorsing Peers Simulate and Sign the Transaction:} The endorsing
+peers execute the chaincode using the information from the \textbf{PROPOSE
+	MESSAGE}. The result is digitally signed, generating a signed transaction, which
+is sent back to the peer with the Gateway Service.
+
+\textbf{3. Client Sends Signed Transactions to the Ordering Service:} The client
+receives the signed transactions from the endorsing peers via the Gateway
+Service and creates an \textbf{ENDORSEMENT} package. This package is then sent
+to the Ordering Service.
+
+\textbf{4. Ordering Service Delivers the Block to Peers:} The Ordering Service
+validates the transactions based on the chaincode's endorsing policy. If all
+required endorsing peers have signed the transaction, it is delivered as a block
+to all peers, updating their state.
+
+\newpage
+
+\textbf{5. Peers Validate Transactions:} Each peer validates the consistency of
+the read/write sets of the transactions. Inconsistent transactions are marked as
+invalid, while valid transactions update the state.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=3]{\pdf}}
+	\caption{Fluxo de uma transação Hyperledger Fabric}
+	%\note{}
+	\label{f:figure2}\end{figure}
+
+\subsection{Exemplo de Fluxo}
+
+\paragraph{}
+A Organização A compra e vende legumes da Organização B, e o consenso do
+chaincode estabelece que ambas as partes devem assinar as transações. Tanto A
+quanto B possuem um peer para enviar pedidos de compra, aceite ou rejeição. O
+processo começa quando o cliente da Org A inicia a transação usando um SDK para
+enviar uma proposta de transação aos endorsing peers de A e B.
+
+\paragraph{}
+Os endorsing peers recebem a proposta de transação, verificam sua autenticidade
+(incluindo formato, não duplicação, e autorização do cliente), e executam o
+chaincode. Se tudo estiver correto, o resultado é enviado de volta ao Gateway. O
+cliente coleta essas respostas dos endorsing peers e aguarda o próximo passo.
+
+\paragraph{}
+O Gateway de A monta a transação de endorsement e envia para o Ordering Service,
+que valida as transações de acordo com a política de endosso e organiza-as
+cronologicamente em blocos. Depois disso, os blocos são adicionados ao canal.
+
+\paragraph{}
+Os peers verificam as transações no bloco e atualizam o ledger. Um evento é
+então enviado ao cliente A, informando que a transação foi registrada com
+sucesso. Esse processo atualiza o estado global (World State) do ledger.
+
+\paragraph{}
+O fluxo é dividido em três fases:
+
+\textbf{Proposta e Execução:} A proposta é feita, o chaincode é executado, e o
+conjunto de leitura/escrita (R/W Set) é assinado pelos peers.
+\newline
+\textbf{Envio e Ordenação:} A transação é enviada ao Orderer para verificação e ordenação.
+\newline
+\textbf{Validação e Comprometimento:} As transações são validadas quanto à
+consistência, o estado é atualizado, e o cliente é notificado.
+
+\paragraph{}
+Se o chaincode usa Private Data Collections (PDC), o fluxo inclui uma etapa
+adicional para gerar uma resposta de proposta de transação. Dados privados são
+armazenados separadamente no CouchDB, e replicados apenas entre os peers
+autorizados pelas políticas de PDC. O uso de dados transitórios permite que
+argumentos sensíveis não sejam gravados nos blocos.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=4]{\pdf}}
+	\caption{Private Data Collections}
+	%\note{}
+	\label{f:figure3}\end{figure}
+
+\newpage
+\paragraph{}
+Para iniciar uma transação, o SDK do Hyperledger precisa de informações sobre a
+rede, como políticas de endosso, peers e orderers de um canal. O Service
+Discovery fornece essas informações de forma dinâmica, complementando o perfil
+de conexão da rede.
+
+\begin{figure}[H]
+	{\includegraphics[scale=0.5,page=5]{\pdf}}
+	\caption{Service Discovery}
+	%\note{}
+	\label{f:figure4}\end{figure}
+
+\subsection{Características Redes Fabric}
+
+\paragraph{}
+Para manter a rede escalável, alguns eventos podem exigir mudanças na
+configuração, como a adição de novas organizações ou nós, revogação de
+certificados (CRL) para excluir entidades, mudanças na hierarquia de consenso e
+atualizações de contratos inteligentes. Essas adaptações garantem que a rede
+possa crescer e se ajustar a novas necessidades sem comprometer a segurança ou
+funcionalidade.
+
+\paragraph{}
+O recurso de Peer Snapshot permite reduzir a quantidade de dados armazenados no
+ledger de um peer, economizando espaço e diminuindo o tempo de sincronização de
+novos peers. Por exemplo, um peer pode começar a partir do bloco \#1000,
+ignorando dados anteriores. No entanto, isso limita as consultas ao histórico e
+não suporta dados privados (private-data).
+
+\paragraph{}
+Um chaincode pode interagir com outro utilizando o método invokeChaincode.
+Quando a chamada ocorre no mesmo canal, o read/write set do chaincode chamado é
+integrado à resposta principal. Se a chamada é feita entre canais diferentes,
+apenas a resposta é retornada, sem alterar a proposta de transação original.
+
+\paragraph{}
+A otimização da velocidade de registro depende de ajustes em várias áreas, como
+a política de endosso, métodos específicos do chaincode, parâmetros do cliente e
+uso de Private Data Collections (PDC). Essas configurações permitem balancear
+segurança e desempenho conforme as necessidades do sistema.
+
+\paragraph{}
+Embora o consenso do Hyperledger Fabric não seja Byzantine Fault Tolerant (BFT),
+existem mecanismos para detectar comportamentos suspeitos. Clientes podem
+comparar as respostas de propostas de transação, e peers que enviam respostas
+inconsistentes podem ser tratados de forma diferenciada. Em cenários de consenso
+democrático, peers anômalos podem ser sinalizados para administração, que decide
+sobre permissões e atualizações. O suporte a BFT está previsto para a versão 3.0
+do Fabric.
+
+% \bibliography{bibliography}
+
+\end{document}
