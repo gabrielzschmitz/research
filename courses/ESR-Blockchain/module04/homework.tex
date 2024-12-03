@@ -1,0 +1,160 @@
+% This template is based on Pascal Michaillat Minimalist LaTeX Template for
+% Academic Papers: https://github.com/pmichaillat/latex-paper
+\documentclass[letterpaper,11pt,leqno]{article}
+\usepackage{homework}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{booktabs}
+\bibliographystyle{bibliography}
+
+% Paper title to populate PDF metadata:
+\hypersetup{pdftitle={Resumo: Blockchain GoLedger Módulo 4}}
+
+% Path to BibTeX file with references:
+\newcommand{\bib}{bibliography}
+
+% Path to PDF file with figures:
+\newcommand{\pdf}{figures/figures}
+
+% To use double quotes
+\newcommand{\quotes}[1]{``#1''}
+
+% Defining problem, subproblem and solution:
+\newtheorem{problem}{\refstepcounter{problemcount}{Problema}}
+\newtheorem{subproblem}{\refstepcounter{subproblemcount}}[problem]
+\makeatletter
+\renewcommand{\thesubproblem}{%
+  \theproblem-\ifnum\value{subproblem}<27%
+    \alph{subproblem}%
+  \else%
+    \number\numexpr\value{subproblem}-26\relax%
+  \fi%
+}
+\makeatother
+\newenvironment{solution}[1][\it{Solução}]{
+  \refstepcounter{solutioncount}{\textbf{#1:}\\}}
+{}
+
+% Adding code support
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{darkBackground}{RGB}{40, 44, 52} % Background color
+\definecolor{lightGray}{RGB}{55, 61, 69}      % Light gray for the frame
+\definecolor{blue}{RGB}{66, 134, 244}         % Blue for keywords
+\definecolor{green}{RGB}{80, 250, 123}        % Green for comments
+\definecolor{red}{RGB}{255, 85, 85}           % Red for strings
+\definecolor{purple}{RGB}{189, 147, 249}      % Purple for other keywords
+\definecolor{orange}{RGB}{255, 184, 108}      % Orange for constants
+\lstdefinestyle{oneDarkStyle}{
+    backgroundcolor=\color{darkBackground}, % Solid background
+    basicstyle=\ttfamily\footnotesize\color{white}, % Font style
+    breaklines=false,
+    frame=single,
+    captionpos=b,
+    rulecolor=\color{darkBackground}, % Change frame color to match background
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green},
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{black},
+    showtabs=false,                  
+    numbers=left,
+    morekeywords={int, float, return, void}, % Extra keywords
+}
+\lstset{style=oneDarkStyle}
+
+\begin{document}
+
+% Title:
+\title{Tarefa: Blockchains Corporativos\\ Hyperledger Fabric\\ Módulo 4}
+
+% Authors:
+\author{Gabriel dos Santos Schmitz}
+
+% Date:
+\date{Dezembro 2024}
+
+\begin{titlepage}
+
+	\maketitle
+
+\end{titlepage}
+
+% Tarefa 1
+\section{Analisando Rede Fabric}
+
+% 1
+\begin{problem}
+Considere que um chaincode instalado na rede tenha a seguinte regra de consenso:
+
+\begin{lstlisting}[language=SQL, caption=Chaincode]
+OUTOF( 2,
+  AND(org1.member, OR(org2.member, org4.member)),
+  OUTOF(1, org3.member, AND(org4.member, org5.member)),
+  OR(org3.member, OUTOF(1, org1.member, org2.member)
+)
+\end{lstlisting}
+
+A tabela abaixo apresenta transações feitas no sistema e quais organizações a
+aprovaram:
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{cccccc}
+		\toprule
+		\textbf{Transação} & \textbf{Org1} & \textbf{Org2} & \textbf{Org3} & \textbf{Org4} & \textbf{Org5} \\
+		\midrule
+		1                  & Sim           & Sim           & Sim           & Não           & Não           \\
+		2                  & Não           & Não           & Não           & Sim           & Sim           \\
+		3                  & Não           & Não           & Sim           & Sim           & Sim           \\
+		4                  & Sim           & Não           & Não           & Não           & Não           \\
+		5                  & Não           & Não           & Sim           & Não           & Não           \\
+		6                  & Sim           & Sim           & Não           & Sim           & Não           \\
+		7                  & Sim           & Não           & Não           & Não           & Sim           \\
+		8                  & Sim           & Não           & Não           & Sim           & Não           \\
+		9                  & Não           & Sim           & Não           & Sim           & Não           \\
+		10                 & Não           & Sim           & Não           & Não           & Sim           \\
+		\bottomrule
+	\end{tabular}
+	\caption{Tabela de Transações e Organizações}
+	\label{tab:transacoes}
+\end{table}
+
+\end{problem}
+
+% 1-a
+\begin{subproblem}
+	Quais transações descritas na tabela acima foram aprovadas?
+\end{subproblem}
+\begin{solution}
+	Transações 1, 3, 5, 6, 9 foram aprovadas.
+\end{solution}
+
+% 1-b
+\begin{subproblem}
+	Qual a entidade da rede Fabric responsável por conferir se o consenso do
+	chaincode foi atingido?
+\end{subproblem}
+\begin{solution}
+	A entidade responsável por conferir se o consenso do chaincode foi atingido no
+	Hyperledger Fabric é o peer validatório (validating peer).
+\end{solution}
+
+\newpage
+% 1-c
+\begin{subproblem}
+	Se a transação 10 fosse uma transação envolvendo uma coleção privada entre a
+	Org2 e Org5, o resultado da transação sofreria alguma mudança? Se sim, porquê?
+\end{subproblem}
+\begin{solution}
+	Sim, o resultado da transação 10 sofreria uma mudança. Se fosse uma transação
+	envolvendo uma coleção privada entre as organizações Org2 e Org5, ela seria
+	aprovada, mesmo que não atendesse ao consenso do chaincode geral, porque as
+	regras de aprovação para coleções privadas são definidas de forma independente
+	do chaincode principal.
+\end{solution}
+
+% \bibliography{bibliography}
+
+\end{document}
