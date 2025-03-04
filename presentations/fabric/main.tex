@@ -1,0 +1,45 @@
+% !TeX TS-program = xelatex
+% !BIB TS-program = bibtex
+
+% Full instructions available at:
+% https://github.com/elauksap/focus-beamertheme
+
+\documentclass{beamer}
+\usetheme[nofirafonts]{focus}
+\usepackage{graphicx}
+
+\title{Hyperleadger Fabric}
+%\subtitle{Baseado no Focus}
+\author{Gabriel dos Santos Schmitz\texorpdfstring{\\}{,}}
+\titlegraphic{\includegraphics[scale=0.25]{logo-grupo-pqc-utfpr.png}}
+\institute{UTFPR \\ Cristo Rei Street,19 \\ CEP 85902--490 Toledo-PR, Brazil}
+\date{11 02 2025}
+
+% Footline info is printed only if [numbering=fullbar].
+%\footlineinfo{Custom footline text}
+
+\begin{document}
+\begin{frame}
+	\maketitle
+\end{frame}
+
+
+\input{sections/table-of-contents}
+
+% Use starred version (e.g. \section*{Section name})
+% to disable (sub)section page.
+\section{Seção 1 --- Blockchain}
+\input{sections/1}
+
+\section{Seção 2 --- Fabric}
+\input{sections/2}
+
+% \section{Section 3}
+% \input{sections/3}
+
+%\appendix
+\bibliography{bibliography}
+\bibliographystyle{plain}
+
+
+\end{document}

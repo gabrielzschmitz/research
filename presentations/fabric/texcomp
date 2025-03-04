@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if a file name was provided as an argument
+if [ -z "$1" ]; then
+  echo "Usage: $0 <file_name_without_extension>"
+  exit 1
+fi
+
+# Name of the LaTeX file (without the .tex extension)
+file_name="$1"
+
+# Run the command to watch the PDF file and compile the LaTeX file when it changes
+find "${file_name}.tex" sections/*.tex figures/* | entr -d sh -c "
+  pdflatex -synctex=1 -interaction=nonstopmode '${file_name}.tex' && \
+  bibtex '${file_name}' && \
+  makeglossaries '${file_name}' && \
+  pdflatex -synctex=1 -interaction=nonstopmode '${file_name}.tex' && \
+  pdflatex -synctex=1 -interaction=nonstopmode '${file_name}.tex'
+"
